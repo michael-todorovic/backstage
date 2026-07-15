@@ -57,6 +57,8 @@ export interface OpenSearchElasticSearchClientOptions
   connection?: OpenSearchConnectionConstructor;
   node?: string | string[] | OpenSearchNodeOptions | OpenSearchNodeOptions[];
   nodes?: string | string[] | OpenSearchNodeOptions | OpenSearchNodeOptions[];
+  compression?: 'gzip';
+  nodeSelector?: ((connections: any[]) => any) | string;
 }
 
 /**
@@ -87,6 +89,8 @@ export interface ElasticSearchElasticSearchClientOptions
     username?: string;
     password?: string;
   };
+  compression?: boolean;
+  nodeSelector?: (connections: any[]) => any;
 }
 
 /**
@@ -106,11 +110,9 @@ export interface BaseElasticSearchClientOptions {
   sniffOnConnectionFault?: boolean;
   resurrectStrategy?: 'ping' | 'optimistic' | 'none';
   suggestCompression?: boolean;
-  compression?: 'gzip';
   ssl?: TLSConnectionOptions;
   agent?: ElasticSearchAgentOptions | ((opts?: any) => unknown) | false;
   nodeFilter?: (connection: any) => boolean;
-  nodeSelector?: ((connections: any[]) => any) | string;
   headers?: Record<string, any>;
   opaqueIdPrefix?: string;
   name?: string | symbol;
@@ -192,12 +194,6 @@ export interface ElasticSearchConnectionConstructor {
   statuses: {
     ALIVE: string;
     DEAD: string;
-  };
-  roles: {
-    MASTER: string;
-    DATA: string;
-    INGEST: string;
-    ML: string;
   };
 }
 

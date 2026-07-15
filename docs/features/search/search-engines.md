@@ -138,8 +138,8 @@ within your instance. The configuration options are documented in the
 [configuration schema definition file.](https://github.com/backstage/backstage/blob/master/plugins/search-backend-module-elasticsearch/config.d.ts)
 
 The underlying functionality uses either the official Elasticsearch client
-version 7.x (meaning that Elasticsearch version 7 is the only one confirmed to
-be supported), or the OpenSearch client, when the `aws` or `opensearch` provider
+version 9.x (meaning that Elasticsearch versions 8 and 9 are confirmed to be
+supported), or the OpenSearch client, when the `aws` or `opensearch` provider
 is configured.
 
 ### Example configurations

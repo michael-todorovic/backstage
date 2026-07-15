@@ -104,10 +104,19 @@ export class ElasticSearchClientWrapper {
     }
 
     if (this.elasticSearchClient) {
-      return this.elasticSearchClient.search({
-        ...options,
-        ...searchOptions,
-      });
+      // The `body` wrapper was removed from the elasticsearch client's
+      // request types starting with v8; its fields must be flattened onto
+      // the top-level request instead. `meta: true` restores the `{ body,
+      // statusCode, headers }` response shape used elsewhere in this file.
+      const { index, body } = options;
+      return this.elasticSearchClient.search(
+        {
+          index,
+          ...(body as Record<string, unknown>),
+          ...searchOptions,
+        },
+        { meta: true },
+      );
     }
 
     throw new Error('No client defined');
@@ -135,7 +144,10 @@ export class ElasticSearchClientWrapper {
     }
 
     if (this.elasticSearchClient) {
-      return this.elasticSearchClient.indices.putIndexTemplate(template);
+      return this.elasticSearchClient.indices.putIndexTemplate({
+        name: template.name,
+        ...template.body,
+      });
     }
 
     throw new Error('No client defined');
@@ -147,7 +159,7 @@ export class ElasticSearchClientWrapper {
     }
 
     if (this.elasticSearchClient) {
-      return this.elasticSearchClient.indices.get(options);
+      return this.elasticSearchClient.indices.get(options, { meta: true });
     }
 
     throw new Error('No client defined');
@@ -225,9 +237,7 @@ export class ElasticSearchClientWrapper {
 
     if (this.elasticSearchClient) {
       return this.elasticSearchClient.indices.updateAliases({
-        body: {
-          actions: filteredActions,
-        },
+        actions: filteredActions,
       });
     }
 

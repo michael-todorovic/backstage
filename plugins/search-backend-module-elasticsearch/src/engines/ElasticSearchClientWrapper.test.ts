@@ -123,9 +123,15 @@ describe('ElasticSearchClientWrapper', () => {
       };
       const result = (await wrapper.search(searchInput)) as any;
 
-      // Should call the ElasticSearch client's search with expected input.
+      // Should call the ElasticSearch client's search with the body fields
+      // flattened onto the top-level request, as required by the v8+ client.
       expect(result.client).toBe('es');
-      expect(result.args).toStrictEqual(searchInput);
+      expect(result.args).toStrictEqual({
+        index: 'xyz',
+        eg: 'etc',
+        ignore_unavailable: true,
+        allow_no_indices: true,
+      });
     });
 
     it('bulk', async () => {
@@ -151,9 +157,13 @@ describe('ElasticSearchClientWrapper', () => {
       const indexTemplate = { name: 'xyz', body: { index_patterns: ['*'] } };
       const result = (await wrapper.putIndexTemplate(indexTemplate)) as any;
 
-      // Should call the ElasticSearch client with expected input.
+      // Should call the ElasticSearch client with the body fields flattened
+      // onto the top-level request, as required by the v8+ client.
       expect(result.client).toBe('es');
-      expect(result.args).toStrictEqual(indexTemplate);
+      expect(result.args).toStrictEqual({
+        name: 'xyz',
+        index_patterns: ['*'],
+      });
     });
 
     it('indexList', async () => {
@@ -219,10 +229,11 @@ describe('ElasticSearchClientWrapper', () => {
       const input = { actions: [{ remove: { index: 'xyz', alias: 'abc' } }] };
       const result = (await wrapper.updateAliases(input)) as any;
 
-      // Should call the OpenSearch client with expected input.
+      // Should call the ElasticSearch client with `actions` flattened onto
+      // the top-level request, as required by the v8+ client.
       expect(result.client).toBe('es');
       expect(result.args).toStrictEqual({
-        body: { actions: input.actions },
+        actions: input.actions,
       });
     });
   });

@@ -73,9 +73,7 @@ const customIndexTemplate = {
 
 const advanceTimersByNTimes = async (n = 1, time = 1000) => {
   for (let i = 0; i < n; i++) {
-    await Promise.resolve();
-    jest.advanceTimersByTime(time);
-    await Promise.resolve();
+    await jest.advanceTimersByTimeAsync(time);
   }
 };
 
@@ -123,7 +121,7 @@ describe('ElasticSearchSearchEngine', () => {
       mock.add(
         {
           method: 'POST',
-          path: '/*__search/_search',
+          path: '/:index/_search',
         },
         () => ({
           hits: {
@@ -135,15 +133,12 @@ describe('ElasticSearchSearchEngine', () => {
     });
     it('should invoke the query translator', async () => {
       const translatorSpy = jest.fn().mockReturnValue({
-        elasticSearchQuery: () => ({
-          toJSON: () =>
-            JSON.stringify({
-              query: {
-                match_all: {},
-              },
-            }),
-        }),
-        documentTypes: [],
+        elasticSearchQuery: {
+          query: {
+            match_all: {},
+          },
+        },
+        documentTypes: undefined,
       });
       testSearchEngine.setTranslator(translatorSpy);
 
@@ -522,7 +517,7 @@ describe('ElasticSearchSearchEngine', () => {
       mock.add(
         {
           method: 'POST',
-          path: '/*__search/_search',
+          path: '/:index/_search',
         },
         () => ({
           hits: {
@@ -552,12 +547,12 @@ describe('ElasticSearchSearchEngine', () => {
     it('should perform search query with less results than one page', async () => {
       mock.clear({
         method: 'POST',
-        path: '/*__search/_search',
+        path: '/:index/_search',
       });
       mock.add(
         {
           method: 'POST',
-          path: '/*__search/_search',
+          path: '/:index/_search',
         },
         () => {
           return {
@@ -597,12 +592,12 @@ describe('ElasticSearchSearchEngine', () => {
     it('should perform search query with more results than one page', async () => {
       mock.clear({
         method: 'POST',
-        path: '/*__search/_search',
+        path: '/:index/_search',
       });
       mock.add(
         {
           method: 'POST',
-          path: '/*__search/_search',
+          path: '/:index/_search',
         },
         () => {
           return {
@@ -643,12 +638,12 @@ describe('ElasticSearchSearchEngine', () => {
     it('should perform search query for second page', async () => {
       mock.clear({
         method: 'POST',
-        path: '/*__search/_search',
+        path: '/:index/_search',
       });
       mock.add(
         {
           method: 'POST',
-          path: '/*__search/_search',
+          path: '/:index/_search',
         },
         () => {
           return {
@@ -692,12 +687,12 @@ describe('ElasticSearchSearchEngine', () => {
     it('should handle parsing highlights in search query results', async () => {
       mock.clear({
         method: 'POST',
-        path: '/*__search/_search',
+        path: '/:index/_search',
       });
       mock.add(
         {
           method: 'POST',
-          path: '/*__search/_search',
+          path: '/:index/_search',
         },
         () => {
           return {

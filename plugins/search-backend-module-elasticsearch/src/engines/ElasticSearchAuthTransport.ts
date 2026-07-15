@@ -95,7 +95,9 @@ export function createElasticSearchAuthTransport(
 ): ElasticSearchTransportConstructor {
   class AuthTransport extends ElasticSearchTransport {
     request(params: any, options?: any, callback?: any): any {
-      // Handle overloaded signatures
+      // Handle overloaded signatures. The base Transport's request method is
+      // promise-only, so callback-style calls are serviced by manually
+      // invoking the callback once that promise settles.
       if (typeof options === 'function') {
         // Callback style without options
         const cb = options;
@@ -105,9 +107,9 @@ export function createElasticSearchAuthTransport(
             const mergedOptions = {
               headers: authHeaders,
             };
-            return super.request(params, mergedOptions, cb);
+            return super.request(params, mergedOptions);
           })
-          .catch(cb);
+          .then(result => cb(null, result), cb);
 
         return { abort: () => {} };
       }
@@ -124,9 +126,9 @@ export function createElasticSearchAuthTransport(
                 ...authHeaders,
               },
             };
-            return super.request(params, mergedOptions, callback);
+            return super.request(params, mergedOptions);
           })
-          .catch(callback);
+          .then(result => callback(null, result), callback);
 
         return { abort: () => {} };
       }
